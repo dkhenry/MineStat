@@ -1,0 +1,3 @@
+name: MineStat
+main: com.dkhenry.minestat.MineStatPlugin
+version: 0.1
