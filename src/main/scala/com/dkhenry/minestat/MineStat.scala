@@ -14,6 +14,12 @@ import org.bukkit.event.block.LeavesDecayEvent
 import scala.collection.mutable.HashMap
 import org.bukkit.plugin.PluginManager
 
+// MongoDb Persistance 
+import com.mongodb.casbah.Imports._
+import com.mongodb.casbah.commons.conversions.scala._
+import org.joda.time._
+
+
 /**
  * For Persistance 
  * 	typ Key defines a type
@@ -83,6 +89,41 @@ class MemoryPersist extends Persist {
         println { "\t\t"+ i._1._3 + " = " + i._2.toString()}
       }      
     }
+  }
+}
+
+class MongoPersist extends Persist {
+  RegisterJodaTimeConversionHelpers()
+
+  // Connect to the database
+  lazy val _mongoConn = MongoConnection()  
+  val data = _mongoConn("minestat")
+  
+  def store(typ: String, name: String, indicator: String, value: Double) = {
+	  data(typ).update(DBObject("name"->name,"indicator"->indicator),$set("value"-> value))
+  }
+  
+  def retrieve(typ: String, name: String, indicator:String): Option[Double] = {
+	  data(typ).findOne(DBObject("name"->name,"indicator"->indicator)) match { 
+	    case Some(o) => o.getAs[Double]("value")
+	    case _ => None
+	  }	  
+  }
+  
+  def filter(typ:String) : Iterable[((String,String,String),Double)] = {
+	  (Map[(String,String,String),Double]() /: data(typ).find())((ret,obj) => {	    
+	    ret ++ Map(( ( typ,obj.getAsOrElse[String]("name",""),obj.getAsOrElse[String]("indicator","") ),obj.getAsOrElse[Double]("value",0.0)))
+	  }) 	  
+  }
+  
+  def filter(typ: String, name: String) : Iterable[((String,String,String),Double)] = {
+    (Map[(String,String,String),Double]() /: data(typ).find(DBObject("name"->name)))((ret,obj) => {	    
+	    ret ++ Map(( ( typ,obj.getAsOrElse[String]("name",""),obj.getAsOrElse[String]("indicator","") ),obj.getAsOrElse[Double]("value",0.0)))
+	  })	  
+  }
+  
+  def print() = {
+    println { "Printing from the MongoDB Store is not supported yet..." }
   }
 }
 
