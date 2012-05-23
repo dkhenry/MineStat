@@ -100,7 +100,7 @@ class MongoPersist extends Persist {
   val data = _mongoConn("minestat")
   
   def store(typ: String, name: String, indicator: String, value: Double) = {
-	  data(typ).update(DBObject("name"->name,"indicator"->indicator),$set("value"-> value))
+	  data(typ).update(DBObject("name"->name,"indicator"->indicator),$set("value"-> value),true,false)
   }
   
   def retrieve(typ: String, name: String, indicator:String): Option[Double] = {
@@ -132,11 +132,12 @@ class MongoPersist extends Persist {
 class MineStatPlugin extends JavaPlugin {
   val logger = Logger.getLogger("Minecraft.Minestat")
   
-  val persistance = new MemoryPersist()
+  val persistance = new MongoPersist()
   def serverName = "Craftbukkit"
     
   // The Listeners
   val blockListener = new MineStatBlockListener(this)
+  val entityListener = new MineStatEntityListener(this)
   
   override def onEnable = {
     logInfo("MineStat Enabled!") 
@@ -145,6 +146,9 @@ class MineStatPlugin extends JavaPlugin {
 	
     // The Block Events		
 	pm.registerEvents(blockListener, this) ; 
+	
+	// The Entity Events
+	pm.registerEvents(entityListener, this);
   }
   
   override def onDisable = {

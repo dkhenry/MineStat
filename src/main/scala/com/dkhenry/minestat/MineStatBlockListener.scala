@@ -22,14 +22,18 @@ class MineStatBlockListener(plugin: MineStatPlugin) extends Listener {
 	  plugin.persistance.increment("server",plugin.serverName,"BlocksPlaced",1.0)
 	  
   	  //TODO: Increment the Player Information
+	  def player = event.getPlayer().getName()
+	  plugin.persistance.increment("player",player,"BlocksPlaced",1.0);
 	}
 	@EventHandler
-	def onBlockBreak(event: BlockBreakEvent) = {
+	def onBlockBreak(event: BlockBreakEvent) = {	  
 	  val mat = event.getBlock().getType()
 	  plugin.persistance.increment("block",mat.name(),"BlocksDestroyed",1.0)
 	  plugin.persistance.increment("server",plugin.serverName,"BlocksDestroyed",1.0)
 	  
 	  //TODO: Increment the Player Information
+	  def player = event.getPlayer().getName()
+	  plugin.persistance.increment("player",player,"BlocksDestroyed",1.0);
 	}
 	@EventHandler 
 	def onBlockSpread(event: BlockSpreadEvent) = {
