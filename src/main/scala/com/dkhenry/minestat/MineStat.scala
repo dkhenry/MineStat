@@ -100,6 +100,7 @@ class MongoPersist extends Persist {
   val data = _mongoConn("minestat")
   
   def store(typ: String, name: String, indicator: String, value: Double) = {
+	  // true -> Upsert , false -> multiple ( only update one document if you match the filter ) 
 	  data(typ).update(DBObject("name"->name,"indicator"->indicator),$set("value"-> value),true,false)
   }
   
@@ -138,17 +139,31 @@ class MineStatPlugin extends JavaPlugin {
   // The Listeners
   val blockListener = new MineStatBlockListener(this)
   val entityListener = new MineStatEntityListener(this)
+  val playerListener = new MineStatPlayerListener(this)
+  val tickPoller = new ServerTickPoller(this)
   
-  override def onEnable = {
-    logInfo("MineStat Enabled!") 
+  val scorekeeper = new MongoLog(this)
+  
+  override def onEnable = {    
+    logInfo("Enableing MineStat!")
     /* Register the Listeners */
 	val pm: PluginManager = this.getServer().getPluginManager() ;
 	
     // The Block Events		
 	pm.registerEvents(blockListener, this) ; 
-	
 	// The Entity Events
 	pm.registerEvents(entityListener, this);
+	// The Player Listener
+	pm.registerEvents(playerListener, this); 
+	
+	// Reset the server wide statistics 
+	persistance.set("server",serverName,"numberOfPlayers",0.0);
+	
+	// Server Events	
+	tickPoller.registerWithScheduler(getServer().getScheduler()) 
+	scorekeeper.registerWithScheduler(getServer().getScheduler())
+	
+	logInfo("MineStat Enabled!")
   }
   
   override def onDisable = {

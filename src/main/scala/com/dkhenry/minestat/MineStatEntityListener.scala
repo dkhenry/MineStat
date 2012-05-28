@@ -103,7 +103,7 @@ class MineStatEntityListener(plugin: MineStatPlugin) extends Listener{
 		plugin.logInfo(subject.getClass().getName().split('.').last + " Death")
 		subject match { 
 		  case p: Player => handlePlayerDeath(p) 
-		  case e: LivingEntity => plugin.logInfo("About to Handle NPE Death") ; handleNpeDeath(e)
+		  case e: LivingEntity => plugin.logInfo("About to Handle NPE Death") ; handleNpeDeath(e) 
 		  case _ => plugin.logInfo("Well I could have handled that better")
 		}
 		plugin.logInfo("Done Handling Event")

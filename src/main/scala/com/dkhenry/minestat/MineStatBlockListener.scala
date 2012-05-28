@@ -14,7 +14,8 @@ import org.bukkit.event.block.LeavesDecayEvent
 import scala.collection.mutable.HashMap
 import org.bukkit.plugin.PluginManager
 
-class MineStatBlockListener(plugin: MineStatPlugin) extends Listener {	
+class MineStatBlockListener(plugin: MineStatPlugin) extends Listener {
+  
 	@EventHandler
 	def onBlockPlace(event: BlockPlaceEvent) = {
 	  val mat = event.getBlock().getType()
