@@ -33,7 +33,8 @@ trait Persist {
   def store(typ: String, name: String,indicator: String, value: Double)
   def retrieve(typ: String, name: String, indicator: String): Option[Double]  
   def filter(typ:String) : Iterable[((String,String,String),Double)]
-  def filter(typ: String, name: String) : Iterable[((String,String,String),Double)]
+  def filter(typ: String, name: String) : Iterable[((String,String,String),Double)] 
+  def all(): Iterable[((String,String,String),Double)]  
   
   // We Want 
   //	Object: <name> 
@@ -57,6 +58,9 @@ trait Persist {
   }
   def set(typ: String, name: String, indicator: String, value: Double) { 
     lookupAndAct((typ,name,indicator),value) {v => value}
+  }
+  def map[B]()( f: ((String,String,String),Double) => B) { 
+    all map { x => }    
   }
   
 }
@@ -89,6 +93,9 @@ class MemoryPersist extends Persist {
         println { "\t\t"+ i._1._3 + " = " + i._2.toString()}
       }      
     }
+  }
+  def all() =  {    
+    data
   }
 }
 
@@ -126,6 +133,26 @@ class MongoPersist extends Persist {
   def print() = {
     println { "Printing from the MongoDB Store is not supported yet..." }
   }
+  
+  // Iterate over the collectionNames.
+  // Add them to a giant Map 
+  def all() = { 
+    (Map[(String,String,String),Double]() /: data.collectionNames)((r,name) => {           
+    	r ++ (Map[(String,String,String),Double]() /: data(name).find())((ret,obj) => { 
+    		ret ++ Map(( ( "foo",obj.getAsOrElse[String](name,""),obj.getAsOrElse[String]("indicator","") ),0.0 ))
+    	})
+    })
+  }
+  
+  def clear() = { 
+    data.collectionNames foreach { name => data(name).remove(DBObject()) }
+  }
+  
+  def load(d: Iterable[((String,String,String),Double)]) = { 
+    clear()
+    // load up each value
+    
+  }
 }
 
 
@@ -134,8 +161,8 @@ class MineStatPlugin extends JavaPlugin {
   val logger = Logger.getLogger("Minecraft.Minestat")
   
   val persistance = new MongoPersist()
-  def serverName = "Craftbukkit"
-    
+  def serverName = this.getServer().getName()    
+  
   // The Listeners
   val blockListener = new MineStatBlockListener(this)
   val entityListener = new MineStatEntityListener(this)
