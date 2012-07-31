@@ -1,5 +1,5 @@
 package com.dkhenry.minestat
-
+ 
 import java.util.logging.Logger
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.Material
@@ -14,7 +14,7 @@ import org.bukkit.event.block.LeavesDecayEvent
 import scala.collection.mutable.HashMap
 import org.bukkit.plugin.PluginManager
 
-// MongoDb Persistance 
+// MongoDB Persistance 
 import com.mongodb.casbah.Imports._
 import com.mongodb.casbah.commons.conversions.scala._
 import org.joda.time._
