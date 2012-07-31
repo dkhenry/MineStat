@@ -17,4 +17,6 @@ Add the process to snapshot the persisted data at regular intervals ( 5min )
 
 Idealy every five minutes we would roll up the entire persistance table into nice objects and insert them as documents into the data store 
 
-Add Option to log events ( then count the events , LogIn , LogOff , ... ) 
+Add Option to log events ( then count the events , LogIn , LogOff , ... )
+
+Add JMX Support ( In Progress ) 
