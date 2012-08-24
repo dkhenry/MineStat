@@ -42,8 +42,15 @@ trait Persist {
   //		indicators: 
   //			<name> : <value> 
   //
-  def print() 
-  
+  def print() = {
+    all map { case ((typ,name,indicator),value) => 
+      println {"Object: "+ name +"\n\ttype: "+ typ+"\n\tindicators:"}
+      val indicators = all filter { k => k._1._1 == typ && k._1._2 == name }
+      indicators map { i =>
+        println { "\t\t"+ i._1._3 + " = " + i._2.toString()}
+      }      
+    }
+  }
   def lookupAndAct(key: (String,String,String), value:Double)(action: Double => Double) = { 
     retrieve(key._1,key._2,key._3) match { 
       case Some(v) => store(key._1,key._2,key._3,action(v)) 
@@ -60,7 +67,7 @@ trait Persist {
     lookupAndAct((typ,name,indicator),value) {v => value}
   }
   def map[B]()( f: ((String,String,String),Double) => B) { 
-    all map { x => }    
+    all map { case(a,b) => f(a,b) }    
   }
   
 }
@@ -82,21 +89,11 @@ class MemoryPersist extends Persist {
   def filter(typ: String, name: String) : Iterable[((String,String,String),Double)] = {
     data filter { k => k._1._1 == typ && k._1._2 == name }   
   }
-  
-  def print() {
-    // get All the Objects and their types    
-    val objects = (Set[(String,String)]() /: data ){ (list , e ) => list + ((e._1._1,e._1._2)) }
-    objects map { set => 
-      println {"Object: "+set._2 +"\n\ttype: "+ set._1+"\n\tindicators:"}
-      val indicators = data filter { k => k._1._1 == set._1 && k._1._2 == set._2 }
-      indicators map { i =>
-        println { "\t\t"+ i._1._3 + " = " + i._2.toString()}
-      }      
-    }
+
+  def all = { 
+  	  data
   }
-  def all() =  {    
-    data
-  }
+ 
 }
 
 class MongoPersist extends Persist {
@@ -130,10 +127,6 @@ class MongoPersist extends Persist {
 	  })	  
   }
   
-  def print() = {
-    println { "Printing from the MongoDB Store is not supported yet..." }
-  }
-  
   // Iterate over the collectionNames.
   // Add them to a giant Map 
   def all() = { 
@@ -150,8 +143,7 @@ class MongoPersist extends Persist {
   
   def load(d: Iterable[((String,String,String),Double)]) = { 
     clear()
-    // load up each value
-    
+    // load up each value    
   }
 }
 
@@ -174,21 +166,24 @@ class MineStatPlugin extends JavaPlugin {
   override def onEnable = {    
     logInfo("Enableing MineStat!")
     /* Register the Listeners */
-	val pm: PluginManager = this.getServer().getPluginManager() ;
+	val pm: PluginManager = this.getServer().getPluginManager() 
 	
     // The Block Events		
-	pm.registerEvents(blockListener, this) ; 
+	pm.registerEvents(blockListener, this) 
 	// The Entity Events
-	pm.registerEvents(entityListener, this);
+	pm.registerEvents(entityListener, this)
 	// The Player Listener
-	pm.registerEvents(playerListener, this); 
+	pm.registerEvents(playerListener, this)
 	
 	// Reset the server wide statistics 
-	persistance.set("server",serverName,"numberOfPlayers",0.0);
+	persistance.set("server",serverName,"numberOfPlayers",0.0)
 	
 	// Server Events	
 	tickPoller.registerWithScheduler(getServer().getScheduler()) 
 	scorekeeper.registerWithScheduler(getServer().getScheduler())
+
+	//TODO: We need to enable JMX here
+
 	
 	logInfo("MineStat Enabled!")
   }

@@ -35,15 +35,16 @@ class MongoLog(plugin: MineStatPlugin) extends Runnable {
 	var tid = 0 
 	
   	def registerWithScheduler(scheduler: BukkitScheduler) { 
-		tid = scheduler.scheduleAsyncRepeatingTask(plugin, this, 0, interval) ;		
+		tid = scheduler.scheduleAsyncRepeatingTask(plugin, this, 0, interval) 
 	}
 	
   	
 	@Override
 	def run() = {
-	  plugin.persistance.map { 
+		plugin.logWarning("Running Persistance")
+	  //plugin.persistance.map { 
 	    	    
-	  }
+	  //}
 	  // we need to take a snapshot of persistance and write it to the MongoDB Log 
 	  
 	}
