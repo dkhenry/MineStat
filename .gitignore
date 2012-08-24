@@ -37,3 +37,7 @@ project/project
 *.ipr
 *.iws
 .idea/
+
+#ensime 
+.ensime
+.history
